@@ -79,9 +79,43 @@ exports.userSignUp = async (req, res) => {
       password: hashedPwd,
       phone,
     });
+
+        // Generate JWT tokens
+        const accessToken = jwt.sign(
+          {
+            UserInfo: {
+              id: newUser._id,
+              username: newUser.username,
+              role: newUser.role,
+            },
+          },
+          process.env.ACCESS_TOKEN_SECRET,
+          { expiresIn: "1d" }
+        );
+        const refreshToken = jwt.sign(
+          { username: newUser.username },
+          process.env.REFRESH_TOKEN_SECRET,
+          { expiresIn: "1d" }
+        );
+            // Save the refresh token
+    newUser.refreshToken = refreshToken;
     await newUser.save();
-    await cartService.createCart(newUser);
-    res.status(200).json({ message: "User created successfully" });
+       // Set cookies
+       res.cookie("jwt", refreshToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "None",
+        maxAge: 24 * 60 * 60 * 1000,
+      });
+  
+
+      await newUser.save();
+      await cartService.createCart(newUser);
+      res.status(200).json({
+        accessToken,
+        user: newUser,
+        message: "User created and logged in successfully",
+      });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
