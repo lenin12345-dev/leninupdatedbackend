@@ -21,15 +21,24 @@ Connection();
 app.use(helmet());
 
 // Rate limiting
-const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, 
-    max: 100 // limit each IP to 100 requests per windowMs
-  });
-  app.use(limiter);
+// const limiter = rateLimit({
+//     windowMs: 15 * 60 * 1000, 
+//     max: 100 // limit each IP to 100 requests per windowMs
+//   });
+//   app.use(limiter);
 
 app.use(bodyParser.json({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cors());
+// Configure CORS
+app.use(cors({
+    origin: 'https://leninecommerce.netlify.app',
+    methods: 'GET,POST,PUT,DELETE',
+    credentials: true,
+    optionsSuccessStatus: 200,
+  }));
+  
+  // Handle pre-flight requests
+  app.options('*', cors());
 app.use('/', Routes);
 
 
