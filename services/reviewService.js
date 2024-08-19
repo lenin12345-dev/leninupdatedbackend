@@ -4,16 +4,23 @@ const productService = require("./productService.js");
 const  createReview=async(reqData, userId)=> {
   try {
     const product = await productService.findProductById(reqData.productId);
+    // Check if the user has already reviewed this product
 
-    const review = new Review({
-      user: userId,
-      product: product._id,
-      review: reqData.review,
-    });
+      // Create a new review
+      const review = new Review({
+        user: userId,
+        product: product._id,
+        review: reqData.review,
+      });
 
-    const savedReview = await review.save();
+      const savedReview = await review.save();
 
-    return savedReview;
+      // Save the review ID inside the product's reviews array
+      product.reviews.push(savedReview._id);
+      await product.save();
+
+      return savedReview.populate('user') ;
+    
   } catch (error) {
     throw new Error(error.message);
   }
