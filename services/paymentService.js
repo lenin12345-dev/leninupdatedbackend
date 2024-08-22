@@ -8,7 +8,7 @@ const createPaymentLink= async (orderId)=>{
         const order = await orderService.findOrderById(orderId);
     // Constructs a request payload for creating a payment link.
         const paymentLinkRequest = {
-          amount: order.totalPrice * 100 ,
+          amount: order.totalDiscountedPrice * 100 ,
           currency: 'USD',
           customer: {
             name:`${order.user.firstname} ${order.user.lastname}`,
