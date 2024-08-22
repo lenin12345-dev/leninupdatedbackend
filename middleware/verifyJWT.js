@@ -4,9 +4,9 @@ const verifyJWT = (req, res, next) => {
     // Extracts and validates the JWT from the request's Authorization header.
     // This header typically contains the JWT in the format Bearer <token>.
     const authHeader = req.headers.authorization || req.headers.Authorization;
+
     if (!authHeader?.startsWith('Bearer ')) return res.sendStatus(401);
     const token = authHeader.split(' ')[1];
-    console.log(token)
     // Uses jsonwebtoken’s verify method to validate the token.
     //  It checks if the token is valid and has been signed with the correct secret (process.env.ACCESS_TOKEN_SECRET).
     jwt.verify(

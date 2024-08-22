@@ -45,10 +45,10 @@ router.post("/api/payments/:id",verifyJWT,createPaymentLink);
 router.get("/api/payments/",verifyJWT,updatePaymentInformation);
 
 router.post("/api/reviews/create",verifyJWT,createReview);
-router.get("/api/reviews/product/:productId",verifyJWT,getAllReview);
+router.get("/api/reviews/product/:productId",getAllReview);
 
 router.post("/api/ratings/create",verifyJWT,createRating);
-router.get("/api/ratings/product/:productId",verifyJWT,getProductsRating);
+router.get("/api/ratings/product/:productId",getProductsRating);
 
 
 router.get("/api/admin/orders",verifyJWT,getAllOrders);
