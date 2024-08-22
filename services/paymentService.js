@@ -9,10 +9,10 @@ const createPaymentLink= async (orderId)=>{
     // Constructs a request payload for creating a payment link.
         const paymentLinkRequest = {
           amount: order.totalPrice * 100 ,
-          currency: 'INR',
+          currency: 'USD',
           customer: {
             name:`${order.user.firstname} ${order.user.lastname}`,
-            contact: order.user.mobile || '9438703636',
+            contact: order.user.mobile ,
             email: order.user.email,
           },
           notify: {
@@ -20,11 +20,11 @@ const createPaymentLink= async (orderId)=>{
             email: true,
           },
           reminder_enable: true,
-          callback_url: `http://localhost:3000/payment/${orderId}`,
+          callback_url: `https://leninecommerce.netlify.app/payment/${orderId}`,
           callback_method: 'get',
         };
         
-        console.log('paymentLinkRequest',paymentLinkRequest)
+
 
     // Calls Razorpay’s paymentLink.create method to generate the payment link.
         const paymentLink = await razorpay.paymentLink.create(paymentLinkRequest);
