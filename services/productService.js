@@ -103,7 +103,19 @@ const  deleteProduct = async(productId)=> {
 
  const findProductById=async(id)=> {
   try {
-  const product = await Product.findById(id).populate("category").exec();
+    const product = await Product.findById(id)
+    .populate({
+      path: 'category',
+      populate: {
+        path: 'parentCategory',
+        populate: {
+          path: 'parentCategory', // This will populate the grandparent category
+          model: 'categories'
+        },
+        model: 'categories'
+      }
+    })
+    .exec();
   if (!product) {
     throw new Error("Product not found with id " + id);
   }
