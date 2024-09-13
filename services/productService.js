@@ -219,7 +219,17 @@ const  deleteProduct = async(productId)=> {
   query = query.skip(skip).limit(pageSize);
 
   // runs the query against the database and retrieves the matching products, considering the filters and pagination.
-  const products = await query.exec();
+  const products = await query.populate({
+    path: 'category',
+    populate: {
+      path: 'parentCategory',
+      populate: {
+        path: 'parentCategory', // This will populate the grandparent category
+        model: 'categories'
+      },
+      model: 'categories'
+    }
+  }).exec();
 
   const totalPages = Math.ceil(totalProducts / pageSize);
 
