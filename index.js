@@ -31,6 +31,12 @@ app.use(bodyParser.json({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: true }));
 // Configure CORS
 app.use(cors({
+    origin: 'http://localhost:3000',
+    methods: 'GET,POST,PUT,DELETE',
+    credentials: true,
+    optionsSuccessStatus: 200,
+  },
+  {
     origin: 'https://leninecommerce.netlify.app',
     methods: 'GET,POST,PUT,DELETE',
     credentials: true,

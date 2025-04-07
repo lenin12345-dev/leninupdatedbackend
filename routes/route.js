@@ -7,7 +7,7 @@ const { findUserCart,addItemToCart } = require('../controller/cartController');
 const { updateCartItem,removeCartItem } = require('../controller/cartItemsController');
 const { createOrder,orderHistory,findOrderById } = require('../controller/orderController')
 const { createPaymentLink, updatePaymentInformation } = require('../controller/paymentController');
-const { createReview, getAllReview } = require('../controller/reviewController');
+const { createReview, getAllReview,deleteReview } = require('../controller/reviewController');
 const { createRating, getProductsRating } = require('../controller/ratingController');
 const { getAllOrders, confirmedOrder,shippOrder,deliverOrder,cancelledOrder,deleteOrder } = require('../controller/adminOrderController');
 const verifyJWT =  require('.././middleware/verifyJWT')
@@ -46,6 +46,8 @@ router.get("/api/payments/",verifyJWT,updatePaymentInformation);
 
 router.post("/api/reviews/create",verifyJWT,createReview);
 router.get("/api/reviews/product/:productId",getAllReview);
+router.delete("/api/reviews/:reviewId",deleteReview);
+
 
 router.post("/api/ratings/create",verifyJWT,createRating);
 router.get("/api/ratings/product/:productId",getProductsRating);
