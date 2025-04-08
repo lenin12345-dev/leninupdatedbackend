@@ -30,18 +30,23 @@ app.use(helmet());
 app.use(bodyParser.json({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: true }));
 // Configure CORS
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://leninecommerce.netlify.app',
+];
+
 app.use(cors({
-    origin: 'http://localhost:3000',
-    methods: 'GET,POST,PUT,DELETE',
-    credentials: true,
-    optionsSuccessStatus: 200,
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
   },
-  {
-    origin: 'https://leninecommerce.netlify.app',
-    methods: 'GET,POST,PUT,DELETE',
-    credentials: true,
-    optionsSuccessStatus: 200,
-  }));
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true,
+  optionsSuccessStatus: 200,
+}));
   
   // Handle pre-flight requests
   app.options('*', cors());
