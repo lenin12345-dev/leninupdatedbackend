@@ -3,12 +3,18 @@ const orderService = require("../services/orderService");
 
 const getAllOrders = async (req, res) => {
   try {
-    const orders = await orderService.getAllOrders();
-    return res.status(200).send(orders);
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+
+    const result = await orderService.getAllOrders({ page, limit });
+
+    return res.status(200).json(result);
   } catch (error) {
-    res.status(500).send({ error: error.message });
+    console.error("Error fetching orders:", error);
+    return res.status(500).json({ message: "Server error" });
   }
 };
+
 
 const confirmedOrder = (req, res) => {
   try {

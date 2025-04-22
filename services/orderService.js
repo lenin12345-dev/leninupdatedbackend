@@ -137,15 +137,32 @@ const usersOrderHistory=async(userId)=> {
   }
 }
 
-async function getAllOrders() {
-  return await Order.find().populate({
-    path: "orderItems",
-    populate: {
-      path: "product",
-    },
-  })
-  .lean();;
+async function getAllOrders({ page, limit }) {
+  const skip = (page - 1) * limit;
+
+  const totalItems = await Order.countDocuments();
+  const orders = await Order.find()
+    .skip(skip)
+    .limit(limit)
+    .populate({
+      path: "orderItems",
+      populate: {
+        path: "product",
+      },
+    })
+    .lean();
+
+  const totalPages = Math.ceil(totalItems / limit);
+
+  return {
+    orders,
+    totalItems,
+    totalPages,
+    currentPage: page,
+  };
 }
+
+
 
 async function deleteOrder(orderId) {
   const order = await findOrderById(orderId);
