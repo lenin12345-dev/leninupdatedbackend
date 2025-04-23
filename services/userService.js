@@ -40,9 +40,16 @@ const getAllUsers = async () => {
     throw new Error(error.message);
   }
 };
+const getRecentUsers = async()=>{
+  const recentUsers = await User.find().sort({
+    createdAt: -1
+  }).limit(10)
+  return recentUsers
+}
 
 module.exports = {
   findUserById,
   getUserProfileByToken,
   getAllUsers,
+  getRecentUsers
 };

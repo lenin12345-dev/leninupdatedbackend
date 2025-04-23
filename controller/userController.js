@@ -145,3 +145,12 @@ exports. getAllUsers=async(req,res)=>{
       return res.status(500).send({error:error.message})
   }
 }
+exports.getRecentUsers= async(req,res)=>{
+  try {
+    const recentUsers = await userService.getRecentUsers()
+    return res.status(200).send(recentUsers)
+    
+  } catch (error) {
+    return res.status(500).send({error:error.message})
+  }
+}

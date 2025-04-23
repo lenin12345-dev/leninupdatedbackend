@@ -150,6 +150,9 @@ async function getAllOrders({ page, limit }) {
         path: "product",
       },
     })
+    .sort({
+      createdAt: -1
+    })
     .lean();
 
   const totalPages = Math.ceil(totalItems / limit);

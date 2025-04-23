@@ -2,7 +2,7 @@ const express = require('express');
 const {getAllProducts,findProductById,
     createProduct,createMultipleProduct,
     deleteProduct,updateProduct} = require('../controller/productController');
-const { userSignUp, userLogIn,getUserProfile,getAllUsers } = require('../controller/userController');
+const { userSignUp, userLogIn,getUserProfile,getAllUsers,getRecentUsers } = require('../controller/userController');
 const { findUserCart,addItemToCart } = require('../controller/cartController');
 const { updateCartItem,removeCartItem } = require('../controller/cartItemsController');
 const { createOrder,orderHistory,findOrderById } = require('../controller/orderController')
@@ -20,6 +20,7 @@ router.post('/auth/signin', userLogIn);
 
 router.get("/api/users",getAllUsers)
 router.get("/api/users/profile",getUserProfile)
+router.get("/api/users/recent",getRecentUsers)
 
 router.post('/api/admin/products', createProduct);
 router.post('/api/admin/products/creates', createMultipleProduct);
