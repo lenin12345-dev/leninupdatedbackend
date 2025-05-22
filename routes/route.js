@@ -9,6 +9,7 @@ const { createOrder,orderHistory,findOrderById } = require('../controller/orderC
 const { createPaymentLink, updatePaymentInformation } = require('../controller/paymentController');
 const { createReview, getAllReview,deleteReview } = require('../controller/reviewController');
 const { createRating, getProductsRating } = require('../controller/ratingController');
+const {getAllCategories} = require("../controller/categoryController")
 const { getAllOrders, confirmedOrder,shippOrder,deliverOrder,cancelledOrder,deleteOrder } = require('../controller/adminOrderController');
 const verifyJWT =  require('.././middleware/verifyJWT')
 
@@ -31,6 +32,7 @@ router.get('/api/products/', getAllProducts);
 router.get('/api/products/id/:id', findProductById);
 
 
+router.get('/api/categories/', getAllCategories);
 
 router.get("/api/cart", verifyJWT, findUserCart);
 router.put("/api/cart/add", verifyJWT, addItemToCart);
