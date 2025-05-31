@@ -1,5 +1,6 @@
 const razorpay = require("../config/razorpayClient.js");
 const orderService=require("./orderService.js");
+const Cart = require("../models/cart.js");
 
 const createPaymentLink= async (orderId)=>{
 
@@ -65,6 +66,22 @@ const updatePaymentInformation=async(reqData)=>{
       order.paymentDetails.status='COMPLETED'; 
       order.orderStatus='PLACED';
       await order.save()
+
+      const userId = typeof order.user === 'object' ? order.user._id.toString() : order.user.toString();
+
+      const cart = await Cart.findOne({ user: userId });
+      if (cart) {
+        // Remove all cart items associated with this cart
+        await CartItem.deleteMany({ cart: cart._id });
+
+        // Reset the cart totals
+        cart.cartItems = [];
+        cart.totalPrice = 0;
+        cart.totalDiscountedPrice = 0;
+        cart.totalItem = 0;
+        cart.discounte = 0;
+        await cart.save();
+      }
     }
     const resData = { message: 'Your order is placed', success: true };
     return resData
