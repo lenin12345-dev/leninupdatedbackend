@@ -70,6 +70,17 @@ async function findProductByCategory(req, res) {
     return res.status(500).json({ error: err.message });
   }
 }
+// Get all products with filtering and pagination
+const  getAllRecentProducts=async(req, res)=> {
+  try {
+
+    const products = await productService.getAllRecentProducts();
+
+    return res.status(200).send(products);
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+}
 
 const createMultipleProduct= async (req, res) => {
   try {
@@ -89,6 +100,7 @@ module.exports = {
   getAllProducts,
   findProductById,
   findProductByCategory,
-  createMultipleProduct
+  createMultipleProduct,
+  getAllRecentProducts
 
 };

@@ -1,7 +1,7 @@
 const express = require('express');
 const {getAllProducts,findProductById,
     createProduct,createMultipleProduct,
-    deleteProduct,updateProduct} = require('../controller/productController');
+    deleteProduct,updateProduct,getAllRecentProducts} = require('../controller/productController');
 const { userSignUp, userLogIn,getUserProfile,getAllUsers,getRecentUsers } = require('../controller/userController');
 const { findUserCart,addItemToCart } = require('../controller/cartController');
 const { updateCartItem,removeCartItem } = require('../controller/cartItemsController');
@@ -30,6 +30,7 @@ router.put('/api/admin/products/:id', updateProduct);
 
 router.get('/api/products/', getAllProducts);
 router.get('/api/products/id/:id', findProductById);
+router.get("/api/admin/recent/products",verifyJWT,getAllRecentProducts);
 
 
 router.get('/api/categories/', getAllCategories);
