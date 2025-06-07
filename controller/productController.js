@@ -45,6 +45,19 @@ async function updateProduct(req, res) {
     return res.status(404).json({ message: err.message });
   }
 }
+const getAllSuggestProducts = async(req,res)=>{
+   try {
+    const {id} = req.params
+    const currProduct =  await productService.findProductById(id);
+    const suggestProducts = await Product.find({
+      category:currProduct.category,
+      _id:{$ne:id}
+    })
+    return res.status(200).send(suggestProducts);
+   } catch (error) {
+    return res.status(404).json({ message: error.message });
+   }
+}
 
 // Find products by category
 async function findProductByCategory(req, res) {
@@ -101,6 +114,7 @@ module.exports = {
   findProductById,
   findProductByCategory,
   createMultipleProduct,
-  getAllRecentProducts
+  getAllRecentProducts,
+  getAllSuggestProducts
 
 };
