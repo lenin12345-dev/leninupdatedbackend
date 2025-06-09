@@ -29,7 +29,7 @@ router.delete('/api/admin/products/:id', deleteProduct);
 router.put('/api/admin/products/:id', updateProduct);
 
 router.get('/api/products/', getAllProducts);
-router.get('/api/suggest-products/', getAllSuggestProducts);
+router.get('/api/suggest-products/:id', getAllSuggestProducts);
 router.get('/api/products/id/:id', findProductById);
 router.get("/api/admin/recent/products",verifyJWT,getAllRecentProducts);
 
