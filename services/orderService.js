@@ -32,6 +32,7 @@ const cartService = require("./cartService.js");
       size: item.size,
       userId: item.userId,
       discountedPrice: item.discountedPrice,
+      orderStatus: "PLACED" // Assuming OrderStatus is a string enum or a valid string value,
     });
 
     const createdOrderItem = await orderItem.save();
@@ -48,7 +49,7 @@ const cartService = require("./cartService.js");
     totalItem: cart.totalItem,
     shippingAddress: address,
     orderDate: new Date(),
-    orderStatus: "PENDING", // Assuming OrderStatus is a string enum or a valid string value
+    orderStatus: "PLACED", // Assuming OrderStatus is a string enum or a valid string value
     paymentDetails:{
       status:"PENDING"
     } , // Assuming PaymentStatus is nested under 'paymentDetails'
