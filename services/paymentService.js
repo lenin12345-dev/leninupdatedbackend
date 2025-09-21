@@ -1,74 +1,77 @@
 const razorpay = require("../config/razorpayClient.js");
-const orderService=require("./orderService.js");
+const orderService = require("./orderService.js");
 const Cart = require("../models/cart.js");
 const CartItem = require("../models/cartItem.js");
 
-const createPaymentLink= async (orderId)=>{
-
-    try {
-        
-        const order = await orderService.findOrderById(orderId);
+const createPaymentLink = async (orderId) => {
+  try {
+    const order = await orderService.findOrderById(orderId);
     // Constructs a request payload for creating a payment link.
-        const paymentLinkRequest = {
-          amount: order.totalDiscountedPrice * 100 ,
-          currency: 'USD',
-          customer: {
-            name:`${order.user.firstname} ${order.user.lastname}`,
-            contact: order.user.mobile ,
-            email: order.user.email,
-          },
-          notify: {
-            sms: true,
-            email: true,
-          },
-          reminder_enable: true,
-          callback_url: `https://leninecommerce.netlify.app/payment/${orderId}`,
-          callback_method: 'get',
-        };
-        
-
+    const paymentLinkRequest = {
+      amount: order.totalDiscountedPrice * 100,
+      currency: "USD",
+      customer: {
+        name: `${order.user.firstname} ${order.user.lastname}`,
+        contact: order.user.mobile,
+        email: order.user.email,
+      },
+      notify: {
+        sms: true,
+        email: true,
+      },
+      reminder_enable: true,
+      callback_url: `https://leninecommerce.netlify.app/payment/${orderId}`,
+      callback_method: "get",
+    };
 
     // Calls Razorpay’s paymentLink.create method to generate the payment link.
-        const paymentLink = await razorpay.paymentLink.create(paymentLinkRequest);
-        console.log('paymentLink',paymentLink)
-        if (!paymentLink) {
-          throw new Error('Payment link can not be created');
-        }
-    
-        const paymentLinkId = paymentLink.id;
-        const payment_link_url = paymentLink.short_url;
-    
-        // Return the payment link URL and ID in the response
-        const resData = {
-          paymentLinkId: paymentLinkId,
-          payment_link_url,
-        };
-        return resData;
-      } catch (error) {
-        console.error('Error creating payment link:', error);
-        throw new Error(error.description);
-      }
-}
+    const paymentLink = await razorpay.paymentLink.create(paymentLinkRequest);
+    console.log("paymentLink", paymentLink);
+    if (!paymentLink) {
+      throw new Error("Payment link can not be created");
+    }
 
-const updatePaymentInformation=async(reqData)=>{
-   const { payment_id: paymentId, order_id: orderId } = reqData;
+    const paymentLinkId = paymentLink.id;
+    const payment_link_url = paymentLink.short_url;
+
+    // Return the payment link URL and ID in the response
+    const resData = {
+      paymentLinkId: paymentLinkId,
+      payment_link_url,
+    };
+    return resData;
+  } catch (error) {
+    console.error("Error creating payment link:", error);
+    throw new Error(error.description);
+  }
+};
+
+const updatePaymentInformation = async (reqData) => {
+  const { payment_id: paymentId, order_id: orderId } = reqData;
 
   try {
     // Fetch order details (You will need to implement the 'orderService.findOrderById' function)
     const order = await orderService.findOrderById(orderId);
- 
+
     // Fetch the payment details using the payment ID
     const payment = await razorpay.payments.fetch(paymentId);
-  
 
-    if (payment.status === 'captured') {  
- // Update the order with payment details
-      order.paymentDetails.paymentId=paymentId;
-      order.paymentDetails.status='COMPLETED'; 
-      order.orderStatus='PLACED';
-      await order.save()
+    if (payment.status === "captured") {
+      // Update the order with payment details
+      order.paymentDetails.paymentId = paymentId;
+      order.paymentDetails.status = "COMPLETED";
+      order.orderStatus = "PLACED";
+      // Update each item
+      order.orderItems.forEach((item) => {
+        item.orderStatus = "PLACED";
+        item.save(); // if stored separately
+      });
+      await order.save();
 
-      const userId = typeof order.user === 'object' ? order.user._id.toString() : order.user.toString();
+      const userId =
+        typeof order.user === "object"
+          ? order.user._id.toString()
+          : order.user.toString();
 
       const cart = await Cart.findOne({ user: userId });
       if (cart) {
@@ -84,12 +87,12 @@ const updatePaymentInformation=async(reqData)=>{
         await cart.save();
       }
     }
-    const resData = { message: 'Your order is placed', success: true };
-    return resData
+    const resData = { message: "Your order is placed", success: true };
+    return resData;
   } catch (error) {
-    console.error('Error processing payment:', error);
+    console.error("Error processing payment:", error);
     throw new Error(`Error processing payment: ${error.message}`);
   }
-}
+};
 
-module.exports={createPaymentLink,updatePaymentInformation}
+module.exports = { createPaymentLink, updatePaymentInformation };
