@@ -51,7 +51,7 @@ const createOrder = async (user, shippAddress) => {
       orderItems,
       totalPrice: cart.totalPrice,
       totalDiscountedPrice: cart.totalDiscountedPrice,
-      discount: cart.discount,
+      discount: cart.discounte,
       totalItem: cart.totalItem,
       shippingAddress: address._id, 
       orderDate: new Date(),
