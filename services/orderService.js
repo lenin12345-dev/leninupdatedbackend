@@ -3,67 +3,73 @@ const Order = require("../models/order.js");
 const OrderItem = require("../models/orderItems.js");
 const cartService = require("./cartService.js");
 
- const createOrder=async(user, shippAddress)=> {
-  let address;
+const createOrder = async (user, shippAddress) => {
   try {
-  // If the _id exists, it means the address already exists in the database
-  if (shippAddress._id) {
-    let existedAddress = await Address.findById(shippAddress._id);
-    if (!existedAddress) {
-      throw new Error("Address not found");
-    }
-    address = existedAddress;
-  } else {
-    address = new Address(shippAddress);
-    address.user = user;
-    await address.save();
-    await user.save();
-  }
- // Fetch the user's cart
-  const {cart} = await cartService.findUserCart(user._id);
+    let address;
 
-  // Create order items
-  const orderItems = [];
-  for (const item of cart.cartItems) {
-    const orderItem = new OrderItem({
-      price: item.price,
-      product: item.product,
-      quantity: item.quantity,
-      size: item.size,
-      userId: item.userId,
-      discountedPrice: item.discountedPrice,
-      orderStatus: "PLACED" // Assuming OrderStatus is a string enum or a valid string value,
+    // 🏠 Check if address already exists
+    if (shippAddress._id) {
+      const existedAddress = await Address.findById(shippAddress._id);
+      if (!existedAddress) {
+        throw new Error("Address not found");
+      }
+      address = existedAddress;
+    } else {
+      address = new Address({
+        ...shippAddress,
+        user: user._id,
+      });
+      await address.save();
+
+      user.addresses.push(address._id);
+      await user.save();
+    }
+
+    const { cart } = await cartService.findUserCart(user._id);
+    if (!cart || !cart.cartItems || cart.cartItems.length === 0) {
+      throw new Error("Cart is empty");
+    }
+
+    const orderItems = [];
+    for (const item of cart.cartItems) {
+      const orderItem = new OrderItem({
+        price: item.price,
+        product: item.product,
+        quantity: item.quantity,
+        size: item.size,
+        userId: item.userId,
+        discountedPrice: item.discountedPrice,
+        orderStatus: "PLACED",
+      });
+
+      const createdOrderItem = await orderItem.save();
+      orderItems.push(createdOrderItem);
+    }
+
+    const createdOrder = new Order({
+      user: user._id,
+      orderItems,
+      totalPrice: cart.totalPrice,
+      totalDiscountedPrice: cart.totalDiscountedPrice,
+      discount: cart.discount,
+      totalItem: cart.totalItem,
+      shippingAddress: address._id, 
+      orderDate: new Date(),
+      orderStatus: "PLACED",
+      paymentDetails: {
+        status: "PENDING",
+      },
     });
 
-    const createdOrderItem = await orderItem.save();
-    orderItems.push(createdOrderItem);
+    const savedOrder = await createdOrder.save();
+
+    return savedOrder;
+  } catch (error) {
+    console.error("Error creating order:", error.message);
+    throw new Error("Failed to create order");
   }
+};
 
-    // Create the order
-  const createdOrder = new Order({
-    user,
-    orderItems,
-    totalPrice: cart.totalPrice,
-    totalDiscountedPrice: cart.totalDiscountedPrice,
-    discounte: cart.discounte,
-    totalItem: cart.totalItem,
-    shippingAddress: address,
-    orderDate: new Date(),
-    orderStatus: "PLACED", // Assuming OrderStatus is a string enum or a valid string value
-    paymentDetails:{
-      status:"PENDING"
-    } , // Assuming PaymentStatus is nested under 'paymentDetails'
-  });
-
-  // Save the order
-  const savedOrder = await createdOrder.save();
-  return savedOrder;
-
-}catch (error) {
-  console.error('Error creating order:', error.message);
-  throw new Error('Failed to create order');
-}
-}
 
 const placedOrder=async(orderId)=> {
   const order = await findOrderById(orderId);
