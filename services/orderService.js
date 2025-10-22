@@ -47,11 +47,11 @@ const createOrder = async (user, shippAddress) => {
     }
 
     const createdOrder = new Order({
-      user: user._id,
+      user: user,
       orderItems,
       totalPrice: cart.totalPrice,
       totalDiscountedPrice: cart.totalDiscountedPrice,
-      discount: cart.discounte,
+      discounte: cart.discounte,
       totalItem: cart.totalItem,
       shippingAddress: address._id, 
       orderDate: new Date(),
