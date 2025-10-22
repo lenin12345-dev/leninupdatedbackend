@@ -53,7 +53,7 @@ const createOrder = async (user, shippAddress) => {
       totalDiscountedPrice: cart.totalDiscountedPrice,
       discounte: cart.discounte,
       totalItem: cart.totalItem,
-      shippingAddress: address._id, 
+      shippingAddress: address, 
       orderDate: new Date(),
       orderStatus: "PLACED",
       paymentDetails: {
