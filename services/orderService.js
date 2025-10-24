@@ -39,7 +39,7 @@ const createOrder = async (user, shippAddress) => {
         size: item.size,
         userId: item.userId,
         discountedPrice: item.discountedPrice,
-        orderStatus: "PLACED",
+        orderStatus: "PENDING",
       });
 
       const createdOrderItem = await orderItem.save();
@@ -53,9 +53,9 @@ const createOrder = async (user, shippAddress) => {
       totalDiscountedPrice: cart.totalDiscountedPrice,
       discounte: cart.discounte,
       totalItem: cart.totalItem,
-      shippingAddress: address, 
+      shippingAddress: address,
       orderDate: new Date(),
-      orderStatus: "PLACED",
+      orderStatus: "PENDING",
       paymentDetails: {
         status: "PENDING",
       },
@@ -70,79 +70,77 @@ const createOrder = async (user, shippAddress) => {
   }
 };
 
-
-const placedOrder=async(orderId)=> {
+const placedOrder = async (orderId) => {
   const order = await findOrderById(orderId);
   order.orderStatus = "PLACED";
   order.paymentDetails.status = "COMPLETED";
-  return await order.save();
-}
+  await cartService.clearCart(user._id);
 
-const confirmedOrder=async(orderId)=> {
+  return await order.save();
+};
+
+const confirmedOrder = async (orderId) => {
   const order = await findOrderById(orderId);
   order.orderStatus = "CONFIRMED";
   return await order.save();
-}
+};
 
-const shipOrder=async(orderId)=> {
+const shipOrder = async (orderId) => {
   const order = await findOrderById(orderId);
   order.orderStatus = "SHIPPED";
   return await order.save();
-}
+};
 
-const deliveredOrder=async(orderId)=> {
+const deliveredOrder = async (orderId) => {
   const order = await findOrderById(orderId);
   order.orderStatus = "DELIVERED";
   return await order.save();
-}
+};
 
-const cancelledOrder=async(orderId)=> {
+const cancelledOrder = async (orderId) => {
   const order = await findOrderById(orderId);
   order.orderStatus = "CANCELLED"; // Assuming OrderStatus is a string enum or a valid string value
   return await order.save();
-}
+};
 
-const findOrderById=async(orderId)=> {
-  
-  try{
+const findOrderById = async (orderId) => {
+  try {
     const order = await Order.findById(orderId)
-    .populate("user")
-    .populate({path:"orderItems", populate:{path:"product"}})
-    .populate("shippingAddress");
-    
+      .populate("user")
+      .populate({ path: "orderItems", populate: { path: "product" } })
+      .populate("shippingAddress");
+
     if (!order) {
       throw new Error("Order not found");
     }
-  
-  return order;
-  }catch (error) {
-    console.error('Error finding order by ID:', error.message);
-    throw new Error('Error finding order by ID'); 
+
+    return order;
+  } catch (error) {
+    console.error("Error finding order by ID:", error.message);
+    throw new Error("Error finding order by ID");
   }
+};
 
-}
-
-const usersOrderHistory=async(userId)=> {
+const usersOrderHistory = async (userId) => {
   try {
     const orders = await Order.find({
       user: userId,
       orderStatus: "PLACED",
     })
-      .populate({      
-        path: "orderItems",         //populates the orderItems field of the orders
+      .populate({
+        path: "orderItems", //populates the orderItems field of the orders
         populate: {
-          path: "product",          //further populates the product field inside each orderItem
+          path: "product", //further populates the product field inside each orderItem
         },
       })
-      .lean();          // result to a plain JavaScript object using .lean() and returns it.
-
+      .lean(); // result to a plain JavaScript object using .lean() and returns it.
 
     return orders;
   } catch (error) {
-    console.error('Error fetching orders:', error.message);
-    throw new Error(error.message); 
+    console.error("Error fetching orders:", error.message);
+    throw new Error(error.message);
   }
-}
+};
 
 async function getAllOrders({ page, limit }) {
   const skip = (page - 1) * limit;
@@ -158,7 +156,7 @@ async function getAllOrders({ page, limit }) {
       },
     })
     .sort({
-      createdAt: -1
+      createdAt: -1,
     })
     .lean();
 
@@ -172,14 +170,10 @@ async function getAllOrders({ page, limit }) {
   };
 }
 
-
-
 async function deleteOrder(orderId) {
   const order = await findOrderById(orderId);
   await Order.findByIdAndDelete(orderId);
   return { success: true, order };
-
- 
 }
 
 module.exports = {

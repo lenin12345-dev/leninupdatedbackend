@@ -33,8 +33,8 @@ const orderItemSchema = new Schema(
     },
     orderStatus: {
       type: String,
-      enum: ["PLACED", "ON_THE_WAY", "DELIVERED", "CANCELLED", "RETURNED"],
-      default: "PLACED",
+      enum: ["PENDING","PLACED", "ON_THE_WAY", "DELIVERED", "CANCELLED", "RETURNED"],
+      default: "PENDING",
     },
   },
   { timestamps: true }

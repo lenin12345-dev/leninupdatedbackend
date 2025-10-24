@@ -67,11 +67,16 @@ const addCartItem = async (userId, req) => {
       await isPresent.save();
     }
 
-
     // 🔄 update totals (recalculate to avoid mismatch)
     const allCartItems = await CartItem.find({ cart: cart._id });
-    cart.totalPrice = allCartItems.reduce((sum, ci) => sum + ci.price * ci.quantity, 0);
-    cart.totalDiscountedPrice = allCartItems.reduce((sum, ci) => sum + ci.discountedPrice * ci.quantity, 0);
+    cart.totalPrice = allCartItems.reduce(
+      (sum, ci) => sum + ci.price * ci.quantity,
+      0
+    );
+    cart.totalDiscountedPrice = allCartItems.reduce(
+      (sum, ci) => sum + ci.discountedPrice * ci.quantity,
+      0
+    );
     cart.totalItem = allCartItems.reduce((sum, ci) => sum + ci.quantity, 0);
     cart.discounte = cart.totalPrice - cart.totalDiscountedPrice;
 
@@ -82,5 +87,26 @@ const addCartItem = async (userId, req) => {
     throw new Error("Failed to add item to cart");
   }
 };
+const clearCart = async (userId) => {
+  try {
+    const cart = await Cart.findOne({ user: userId });
 
-module.exports = { createCart, findUserCart, addCartItem };
+    if (!cart) {
+      throw new Error("Cart not found for this user");
+    }
+    await CartItem.deleteMany({ _id: { $in: cart.cartItems } });
+    cart.cartItems = []; // empty all items
+    cart.totalPrice = 0;
+    cart.totalDiscountedPrice = 0;
+    cart.totalItem = 0;
+    cart.discounte = 0;
+
+    await cart.save();
+
+    return { success: true, message: "Cart cleared successfully" };
+  } catch (error) {
+    throw new Error(`Failed to clear cart: ${error.message}`);
+  }
+};
+
+module.exports = { createCart, findUserCart, addCartItem, clearCart };
