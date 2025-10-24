@@ -56,7 +56,7 @@ exports.userSignUp = async (req, res) => {
         .json({ message: "Please fill up the required credentials" });
     const duplicate = await User.findOne({ email }).exec();
     if (duplicate) {
-      res.status(401).json({ message: "user already exists" });
+     return res.status(401).json({ message: "user already exists" });
     }
     // Generate a base username
     let initialUsername = `${firstName}${lastName.charAt(0)}`.toLowerCase();
