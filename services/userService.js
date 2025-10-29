@@ -41,11 +41,23 @@ const getAllUsers = async () => {
   }
 };
 const getRecentUsers = async(page,limit)=>{
-  let skip = (page - 1) * limit;
-  const recentUsers = await User.find().sort({
-    createdAt: -1
-  }).limit(limit).skip(skip);
-  return recentUsers
+  const skip = (page - 1) * limit;
+
+  const recentUsers = await User.find()
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit);
+
+  const totalUsers = await User.countDocuments();
+
+  const totalPages = Math.ceil(totalUsers / limit);
+
+  return {
+    users: recentUsers,
+    totalPages,
+    currentPage: page,
+    totalUsers,
+  };
 }
 
 module.exports = {

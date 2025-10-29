@@ -173,11 +173,11 @@ exports.getAllUsers = async (req, res) => {
 };
 exports.getRecentUsers = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const recentUsers = await userService.getRecentUsers(page, limit);
-    return res.status(200).send(recentUsers);
+    const { page = 1, limit = 10 } = req.query;
+    const result = await userService.getRecentUsers(Number(page), Number(limit));
+    return res.status(200).send(result);
   } catch (error) {
     return res.status(500).send({ error: error.message });
   }
 };
+
