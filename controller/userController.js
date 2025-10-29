@@ -56,7 +56,7 @@ exports.userSignUp = async (req, res) => {
         .json({ message: "Please fill up the required credentials" });
     const duplicate = await User.findOne({ email }).exec();
     if (duplicate) {
-     return res.status(401).json({ message: "user already exists" });
+      return res.status(401).json({ message: "user already exists" });
     }
     // Generate a base username
     let initialUsername = `${firstName}${lastName.charAt(0)}`.toLowerCase();
@@ -72,50 +72,49 @@ exports.userSignUp = async (req, res) => {
     }
     const hashedPwd = await bcrypt.hash(password, 10);
     const newUser = new User({
-      firstname:firstName,
-      lastname:lastName,
+      firstname: firstName,
+      lastname: lastName,
       username,
       email,
       password: hashedPwd,
       phone,
     });
 
-        // Generate JWT tokens
-        const accessToken = jwt.sign(
-          {
-            UserInfo: {
-              id: newUser._id,
-              username: newUser.username,
-              role: newUser.role,
-            },
-          },
-          process.env.ACCESS_TOKEN_SECRET,
-          { expiresIn: "1d" }
-        );
-        const refreshToken = jwt.sign(
-          { username: newUser.username },
-          process.env.REFRESH_TOKEN_SECRET,
-          { expiresIn: "1d" }
-        );
-            // Save the refresh token
+    // Generate JWT tokens
+    const accessToken = jwt.sign(
+      {
+        UserInfo: {
+          id: newUser._id,
+          username: newUser.username,
+          role: newUser.role,
+        },
+      },
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: "1d" }
+    );
+    const refreshToken = jwt.sign(
+      { username: newUser.username },
+      process.env.REFRESH_TOKEN_SECRET,
+      { expiresIn: "1d" }
+    );
+    // Save the refresh token
     newUser.refreshToken = refreshToken;
     await newUser.save();
-       // Set cookies
-       res.cookie("jwt", refreshToken, {
-        httpOnly: true,
-        secure: true,
-        sameSite: "None",
-        maxAge: 24 * 60 * 60 * 1000,
-      });
-  
+    // Set cookies
+    res.cookie("jwt", refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "None",
+      maxAge: 24 * 60 * 60 * 1000,
+    });
 
-      await newUser.save();
-      await cartService.createCart(newUser);
-      res.status(200).json({
-        accessToken,
-        user: newUser,
-        message: "User created and logged in successfully",
-      });
+    await newUser.save();
+    await cartService.createCart(newUser);
+    res.status(200).json({
+      accessToken,
+      user: newUser,
+      message: "User created and logged in successfully",
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -130,7 +129,8 @@ exports.handleRefreshToken = async (req, res) => {
   if (!foundUser) return res.sendStatus(403); // Forbidden
 
   jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
-    if (err || foundUser.username !== decoded.username) return res.sendStatus(403);
+    if (err || foundUser.username !== decoded.username)
+      return res.sendStatus(403);
 
     const accessToken = jwt.sign(
       {
@@ -148,10 +148,8 @@ exports.handleRefreshToken = async (req, res) => {
   });
 };
 
-
 exports.getUserProfile = async (req, res) => {
   try {
-
     const authHeader = req.headers.authorization || req.headers.Authorization;
 
     if (!authHeader?.startsWith("Bearer ")) return res.sendStatus(401);
@@ -165,20 +163,21 @@ exports.getUserProfile = async (req, res) => {
   }
 };
 
-exports. getAllUsers=async(req,res)=>{
+exports.getAllUsers = async (req, res) => {
   try {
-      const users=await userService.getAllUsers()
-      return res.status(200).send(users)
+    const users = await userService.getAllUsers();
+    return res.status(200).send(users);
   } catch (error) {
-      return res.status(500).send({error:error.message})
+    return res.status(500).send({ error: error.message });
   }
-}
-exports.getRecentUsers= async(req,res)=>{
+};
+exports.getRecentUsers = async (req, res) => {
   try {
-    const recentUsers = await userService.getRecentUsers()
-    return res.status(200).send(recentUsers)
-    
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const recentUsers = await userService.getRecentUsers(page, limit);
+    return res.status(200).send(recentUsers);
   } catch (error) {
-    return res.status(500).send({error:error.message})
+    return res.status(500).send({ error: error.message });
   }
-}
+};

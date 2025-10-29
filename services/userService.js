@@ -40,10 +40,11 @@ const getAllUsers = async () => {
     throw new Error(error.message);
   }
 };
-const getRecentUsers = async()=>{
+const getRecentUsers = async(page,limit)=>{
+  let skip = (page - 1) * limit;
   const recentUsers = await User.find().sort({
     createdAt: -1
-  }).limit(10)
+  }).limit(limit).skip(skip);
   return recentUsers
 }
 
